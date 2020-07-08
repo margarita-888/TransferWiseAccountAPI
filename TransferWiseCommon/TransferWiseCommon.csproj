@@ -8,4 +8,16 @@
     <PackageReference Include="BouncyCastle.NetCore" Version="1.8.6" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Certificates\private.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Certificates\private1.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Certificates\public1.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
