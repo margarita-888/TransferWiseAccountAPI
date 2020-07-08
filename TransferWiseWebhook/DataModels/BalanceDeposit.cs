@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TransferWiseAccountAPI.DataModels
+namespace TransferWiseWebhook.DataModels
 {
     public class BalanceDeposit
     {

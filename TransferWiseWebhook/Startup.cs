@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace TransferWiseAccountAPI
+namespace TransferWiseWebhook
 {
     public class Startup
     {

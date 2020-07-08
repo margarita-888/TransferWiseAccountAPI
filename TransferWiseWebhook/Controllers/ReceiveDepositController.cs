@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using TransferWiseAccountAPI.DataModels;
+using TransferWiseWebhook.DataModels;
 using TransferWiseCommon;
 
-namespace TransferWiseAccountAPI.Controllers
+namespace TransferWiseWebhook.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -32,7 +32,6 @@ namespace TransferWiseAccountAPI.Controllers
         public ActionResult ReceiveBalanceCredit([FromBody()] BalanceDepositDTO payload)
         {
             DateTime beginProcessingTimeUTC = DateTime.UtcNow;
-            bool receivedSuccessfully = false;
 
             try
             {
