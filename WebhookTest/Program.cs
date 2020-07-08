@@ -22,6 +22,7 @@ namespace WebhookTest
 
         private async static Task SendBalancesCreditWebhook()
         {
+            DateTime beginProcessingTimeUTC;
             var client = new HttpClient();
             client.BaseAddress = new Uri("http://localhost:64480");
             client.DefaultRequestHeaders.Accept.Clear();
@@ -44,13 +45,18 @@ namespace WebhookTest
                 Console.WriteLine($"\nRequest url: {uri}");
 
                 var request = new HttpRequestMessage(HttpMethod.Post, uri);
-                request.Headers.Add("X-Signature", signatureHeaderValue);
+               request.Headers.Add("X-Signature", signatureHeaderValue);
 
                 var stringContent = new StringContent(payloadString, Encoding.UTF8, "application/json");
                 request.Content = stringContent;
 
+                beginProcessingTimeUTC = DateTime.UtcNow;
+
                 var response = await client.SendAsync(request);
                 response.EnsureSuccessStatusCode();
+
+                var totalProcessingTime = (DateTime.UtcNow - beginProcessingTimeUTC).TotalMilliseconds.ToString("###,###,##0");
+                Console.WriteLine($"Total processing time is {totalProcessingTime} milliseconds.");
                 Console.WriteLine($"WebhookTest::SendBalancesCredit. Response status code: {response.StatusCode.ToString()}");
             }
             catch (HttpRequestException ex)

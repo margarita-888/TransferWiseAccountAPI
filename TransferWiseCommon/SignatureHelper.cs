@@ -14,14 +14,14 @@ namespace TransferWiseCommon
         {
             if (string.IsNullOrEmpty(stringToSign))
             {
-                Console.WriteLine($"TransferWiseHttpClient::SignWithPrivateKey. Parameter oTT must be provided. Unable to proceed.");
+                Console.WriteLine($"TransferWiseHttpClient::SignWithPrivateKey. String to sign must be provided. Unable to proceed.");
                 return null;
             }
 
             //  The Shell one-liner to sign a string, encode it with Base64 and print to standard output:
             //    $ printf '<string to sign>' | openssl sha256 -sign <path to private key.pem> | base64
 
-            Console.WriteLine($"Signing OTT with private key.");
+            Console.WriteLine($"Signing with private key.");
             try
             {
                 AsymmetricCipherKeyPair keyParameters;

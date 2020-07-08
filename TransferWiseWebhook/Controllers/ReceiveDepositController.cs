@@ -25,14 +25,12 @@ namespace TransferWiseWebhook.Controllers
             _logger = logger;
         }
 
-        // This is used by Transferwise to inform us of new deposits into our account.
+        // This is used by TransferWise to inform us of new deposits into our account.
         [HttpPost]
         [Route("")]
         [Produces("application/json")]
-        public ActionResult ReceiveBalanceCredit([FromBody()] BalanceDepositDTO payload)
+        public ActionResult<BalanceDeposit> ReceiveBalanceCredit([FromBody()] BalanceDepositDTO payload)
         {
-            DateTime beginProcessingTimeUTC = DateTime.UtcNow;
-
             try
             {
                 // Make sure a JSON object was provided in the body.
@@ -42,16 +40,6 @@ namespace TransferWiseWebhook.Controllers
                     return new BadRequestObjectResult(new { StatusCode = StatusCodes.Status400BadRequest, message = "no payload in the Body." });
                 }
 
-                var jsonString = JsonConvert.SerializeObject(payload, new Newtonsoft.Json.JsonSerializerSettings()
-                {
-                    StringEscapeHandling = Newtonsoft.Json.StringEscapeHandling.EscapeNonAscii,
-                    Formatting = Newtonsoft.Json.Formatting.None,
-                    NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
-                });
-
-                // Log the whole object.
-                _logger.LogInformation("Transferwise balance credit. JSON object provided: [" + jsonString + "].");
-
                 // We expect this payload was sent when the balances#credit event was raised at TransferWise
                 if (payload.event_type != BALANCE_CREDIT_EVENT)
                 {
@@ -59,53 +47,76 @@ namespace TransferWiseWebhook.Controllers
                     return new BadRequestObjectResult(new { StatusCode = StatusCodes.Status400BadRequest, message = "payload event type is NOT balances#credit." });
                 }
 
-                var totalProcessingTime = (DateTime.UtcNow - beginProcessingTimeUTC).TotalMilliseconds.ToString("###,###,##0");
-                _logger.LogInformation($"Received Transferwise balance#credit payload. Total processing time is {totalProcessingTime} milliseconds.");
-                //receivedSuccessfully = true;
-
                 var headers = this.Request.Headers.ToList();
 
                 var xSignatureHeader = headers.Find(h => h.Key.Equals(("X-Signature")));
                 if (xSignatureHeader.Key == null || String.IsNullOrEmpty(xSignatureHeader.Value.FirstOrDefault()))
                 {
                     _logger.LogInformation("ReceiveDepositController::SignatureVerified. Unable to find 'x-signature' header in TransferWise balances#credit webhook.");
-                    return null;
+                    return new BadRequestObjectResult(new { StatusCode = StatusCodes.Status400BadRequest, message = "X-Signature header was NOT found." });
                 }
 
                 var xSignature = xSignatureHeader.Value.FirstOrDefault();
                 _logger.LogInformation($"\n'X-Signature' header: {xSignature}");
 
-                var signatureVerified = SignatureHelper.VerifySignature(xSignature, jsonString, ALGORITHM_1);
-                if (!signatureVerified)
-                {
-                    _logger.LogInformation("ReceiveDepositController::SignatureVerified. Unable to verify TransferWise signature for this webhook.");
-                    return null;
-                }
+                var paymentReceived = VerifyAndProcessAsync(xSignature, payload).ConfigureAwait(false);
 
-                var paymentReceived = new BalanceDeposit()
-                {
-                    BalanceAccountId = payload.data.resource.id,
-                    BalanceAccountType = payload.data.resource.type,
-                    ProfileId = payload.data.resource.profile_id,
-                    EventType = payload.event_type,
-                    TransactionType = payload.data.transaction_type,
-                    Amount = payload.data.amount,
-                    Currency = payload.data.currency,
-                    PostTransactionBalanceAmount = payload.data.post_transaction_balance_amount,
-                    OccurredAt = DateTime.Parse(payload.data.occurred_at.Remove(payload.data.occurred_at.Length - 1)),
-                    SentAt = DateTime.Parse(payload.sent_at.Remove(payload.sent_at.Length - 1))
-                };
-
-                totalProcessingTime = (DateTime.UtcNow - beginProcessingTimeUTC).TotalMilliseconds.ToString("###,###,##0");
-                _logger.LogInformation($"Verified signature. Total processing time is {totalProcessingTime} milliseconds.");
-
-                return new OkResult();
+                return new OkObjectResult(paymentReceived);
             }
             catch (Exception ex)
             {
                 _logger.LogError($"ReceiveDepositController::ReceivePayment. Exception, {ex.Message}. {ex.StackTrace}.");
                 return new BadRequestObjectResult(new { StatusCode = StatusCodes.Status400BadRequest, message = "exception thrown." }); ;
             }
+        }
+
+        private async Task<BalanceDeposit> VerifyAndProcessAsync(string xSignature, BalanceDepositDTO payload)
+        {
+            var task = Task.Run(() => VerifyAndProcess(xSignature, payload));
+
+            return await task;
+        }
+
+        private BalanceDeposit VerifyAndProcess(string xSignature, BalanceDepositDTO payload)
+        {
+            if (string.IsNullOrEmpty(xSignature))
+            {
+                _logger.LogError($"ReceiveDepositController::VerifySignature. X-Signature must be provided. Unable to continue.");
+                return null;
+            }
+
+            var jsonString = JsonConvert.SerializeObject(payload, new Newtonsoft.Json.JsonSerializerSettings()
+            {
+                StringEscapeHandling = Newtonsoft.Json.StringEscapeHandling.EscapeNonAscii,
+                Formatting = Newtonsoft.Json.Formatting.None,
+                NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore
+            });
+
+            // Log the whole object.
+            _logger.LogInformation("Transferwise balance credit. JSON object provided: [" + jsonString + "].");
+
+            var signatureVerified = SignatureHelper.VerifySignature(xSignature, jsonString, ALGORITHM_1);
+            if (!signatureVerified)
+            {
+                _logger.LogInformation("ReceiveDepositController::SignatureVerified. Unable to verify TransferWise signature for this webhook.");
+                return null;
+            }
+
+            var paymentReceived = new BalanceDeposit()
+            {
+                BalanceAccountId = payload.data.resource.id,
+                BalanceAccountType = payload.data.resource.type,
+                ProfileId = payload.data.resource.profile_id,
+                EventType = payload.event_type,
+                TransactionType = payload.data.transaction_type,
+                Amount = payload.data.amount,
+                Currency = payload.data.currency,
+                PostTransactionBalanceAmount = payload.data.post_transaction_balance_amount,
+                OccurredAt = DateTime.Parse(payload.data.occurred_at.Remove(payload.data.occurred_at.Length - 1)),
+                SentAt = DateTime.Parse(payload.sent_at.Remove(payload.sent_at.Length - 1))
+            };
+
+            return paymentReceived;
         }
     }
 }
