@@ -18,9 +18,9 @@ namespace TransferWiseWebhook.Controllers
         private const string BALANCE_CREDIT_EVENT = "balances#credit";
         private const string ALGORITHM_1 = "SHA1WITHRSA";
 
-        private readonly ILogger _logger;
+        private readonly ILogger<ReceiveDepositController> _logger;
 
-        public ReceiveDepositController(ILogger<Program> logger)
+        public ReceiveDepositController(ILogger<ReceiveDepositController> logger)
         {
             _logger = logger;
         }
@@ -72,9 +72,7 @@ namespace TransferWiseWebhook.Controllers
 
         private async Task<BalanceDeposit> VerifyAndProcessAsync(string xSignature, BalanceDepositDTO payload)
         {
-            var task = Task.Run(() => VerifyAndProcess(xSignature, payload));
-
-            return await task;
+            return await Task.Run(() => VerifyAndProcess(xSignature, payload));
         }
 
         private BalanceDeposit VerifyAndProcess(string xSignature, BalanceDepositDTO payload)

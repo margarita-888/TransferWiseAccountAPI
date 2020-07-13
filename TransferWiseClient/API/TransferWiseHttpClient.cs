@@ -12,6 +12,7 @@ using TransferWiseCommon;
 namespace TransferWiseClient
 {
     public class TransferWiseHttpClient
+
     {
         //private const string ACCESS_TOKEN = "baa5a69f-0b8f-4c6f-b96b-21bf3ac86c1c";
         //private const string ACCESS_TOKEN = "eda86ae4-2717-459a-b740-99a191f5083c"; // Sandbox full access key

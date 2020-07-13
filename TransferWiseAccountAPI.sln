@@ -7,9 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebhookTest", "WebhookTest\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TransferWiseCommon", "TransferWiseCommon\TransferWiseCommon.csproj", "{D4F4A951-2572-4595-BEE6-FE5A4417BCC3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransferWiseClient", "TransferWiseClient\TransferWiseClient.csproj", "{6D665C83-BAAD-491B-8FEC-7AF6C3358335}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TransferWiseClient", "TransferWiseClient\TransferWiseClient.csproj", "{6D665C83-BAAD-491B-8FEC-7AF6C3358335}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TransferWiseWebhook", "TransferWiseWebhook\TransferWiseWebhook.csproj", "{F5F1CB63-263D-42BD-9A69-F0E3CB287AF6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnitTestTransferWiseCommon", "XUnitTestTransferWiseCommon\XUnitTestTransferWiseCommon.csproj", "{DA434529-6BBA-44ED-A169-18CE9CB21548}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{F5F1CB63-263D-42BD-9A69-F0E3CB287AF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F5F1CB63-263D-42BD-9A69-F0E3CB287AF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F5F1CB63-263D-42BD-9A69-F0E3CB287AF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA434529-6BBA-44ED-A169-18CE9CB21548}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA434529-6BBA-44ED-A169-18CE9CB21548}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA434529-6BBA-44ED-A169-18CE9CB21548}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA434529-6BBA-44ED-A169-18CE9CB21548}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

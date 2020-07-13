@@ -18,6 +18,12 @@ namespace TransferWiseCommon
                 return null;
             }
 
+            if (string.IsNullOrEmpty(algorithm))
+            {
+                Console.WriteLine($"TransferWiseHttpClient::SignWithPrivateKey. Algorithm must be provided. Unable to proceed.");
+                return null;
+            }
+
             //  The Shell one-liner to sign a string, encode it with Base64 and print to standard output:
             //    $ printf '<string to sign>' | openssl sha256 -sign <path to private key.pem> | base64
 
@@ -64,6 +70,12 @@ namespace TransferWiseCommon
 
                 var signature = signer.GenerateSignature();
 
+                if (signature == null)
+                {
+                    Console.WriteLine($"TransferWiseHttpClient::SignWithPrivateKey. Generate signature returned null. Unable to proceed.");
+                    return null;
+                }
+
                 // Base 64 encode the signer so its 8-bit clean
                 var signedString = Convert.ToBase64String(signature);
 
@@ -76,42 +88,45 @@ namespace TransferWiseCommon
             }
         }
 
-        public static bool VerifySignature(string signature, string stringToSign, string algorithm)
+        public static bool VerifySignature(string signature, string json, string algorithm)
         {
+            if (string.IsNullOrEmpty(signature))
+            {
+                Console.WriteLine($"TransferWiseHttpClient::SignWithPrivateKey. Signature must be provided. Unable to proceed.");
+                return false;
+            }
+            if (string.IsNullOrEmpty(json))
+            {
+                Console.WriteLine($"TransferWiseHttpClient::SignWithPrivateKey. String to sign must be provided. Unable to proceed.");
+                return false;
+            }
+
+            if (string.IsNullOrEmpty(algorithm))
+            {
+                Console.WriteLine($"TransferWiseHttpClient::SignWithPrivateKey. Algorithm must be provided. Unable to proceed.");
+                return false;
+            }
+
             try
             {
                 RsaKeyParameters keyParameters;
-                switch (algorithm)
+                if (algorithm == "SHA1WITHRSA")
                 {
-                    case "SHA256WITHRSA":
-                        using (TextReader reader = File.OpenText(AppDomain.CurrentDomain.BaseDirectory + "/Certificates/public.pem"))
-                        {
-                            keyParameters = (RsaKeyParameters)new Org.BouncyCastle.OpenSsl.PemReader(reader).ReadObject();
-                        }
-                        break;
+                    using (TextReader reader = File.OpenText(AppDomain.CurrentDomain.BaseDirectory + "/Certificates/public1.pem"))
+                    {
+                        keyParameters = (RsaKeyParameters)new Org.BouncyCastle.OpenSsl.PemReader(reader).ReadObject();
+                    }
 
-                    case "SHA1WITHRSA":
-                        using (TextReader reader = File.OpenText(AppDomain.CurrentDomain.BaseDirectory + "/Certificates/public1.pem"))
-                        {
-                            keyParameters = (RsaKeyParameters)new Org.BouncyCastle.OpenSsl.PemReader(reader).ReadObject();
-                        }
-                        break;
+                    byte[] stringToSignBytes = Encoding.UTF8.GetBytes(json);
+                    byte[] signatureBytes = Convert.FromBase64String(signature);
 
-                    default:
-                        using (TextReader reader = File.OpenText(AppDomain.CurrentDomain.BaseDirectory + "/Certificates/public.pem"))
-                        {
-                            keyParameters = (RsaKeyParameters)new Org.BouncyCastle.OpenSsl.PemReader(reader).ReadObject();
-                        }
-                        break;
+                    ISigner signer = SignerUtilities.GetSigner(algorithm);
+                    signer.Init(false, keyParameters);
+                    signer.BlockUpdate(stringToSignBytes, 0, stringToSignBytes.Length);
+                    return signer.VerifySignature(signatureBytes);
                 }
-
-                byte[] stringToSignBytes = Encoding.UTF8.GetBytes(stringToSign);
-                byte[] signatureBytes = Convert.FromBase64String(signature);
-
-                ISigner signer = SignerUtilities.GetSigner(algorithm);
-                signer.Init(false, keyParameters);
-                signer.BlockUpdate(stringToSignBytes, 0, stringToSignBytes.Length);
-                return signer.VerifySignature(signatureBytes);
+                else
+                    return false;
             }
             catch (Exception exc)
             {
