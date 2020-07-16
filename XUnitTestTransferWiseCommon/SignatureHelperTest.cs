@@ -16,8 +16,7 @@ namespace XUnitTestTransferWiseCommon
         [InlineData(null, null, null)]
         public void SignWithPrivateKey_EmptyParameter_ReturnsNull(object signedString, string stringToSign, string algorithm)
         {
-            //arrange
-
+            //arrange test
             //act
             signedString = SignatureHelper.SignWithPrivateKey(stringToSign, algorithm);
 
