@@ -1,7 +1,7 @@
 ﻿{
   "iisSettings": {
-    "windowsAuthentication": false, 
-    "anonymousAuthentication": true, 
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
     "iisExpress": {
       "applicationUrl": "http://localhost:64480",
       "sslPort": 0
@@ -18,7 +18,7 @@
     "TransferWiseAccountAPI": {
       "commandName": "Project",
       "launchBrowser": true,
-      "applicationUrl": "http://localhost:5000",
+      "applicationUrl": "http://localhost:64480",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

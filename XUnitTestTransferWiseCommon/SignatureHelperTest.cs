@@ -8,17 +8,17 @@ namespace XUnitTestTransferWiseCommon
     public class SignatureHelperTest
     {
         [Theory]
-        [InlineData(null, "", "SHA256WITHRSA")]
-        [InlineData(null, null, "SHA256WITHRSA")]
-        [InlineData(null, "stringToSign", "")]
-        [InlineData(null, "stringToSign", null)]
-        [InlineData(null, "", "")]
-        [InlineData(null, null, null)]
-        public void SignWithPrivateKey_EmptyParameter_ReturnsNull(object signedString, string stringToSign, string algorithm)
+        [InlineData("", "SHA256WITHRSA")]
+        [InlineData(null, "SHA256WITHRSA")]
+        [InlineData("stringToSign", "")]
+        [InlineData("stringToSign", null)]
+        [InlineData("", "")]
+        [InlineData(null, null)]
+        public void SignWithPrivateKey_EmptyParameter_ReturnsNull(string stringToSign, string algorithm)
         {
-            //arrange deploy
+            //arrange
             //act
-            signedString = SignatureHelper.SignWithPrivateKey(stringToSign, algorithm);
+            var signedString = SignatureHelper.SignWithPrivateKey(stringToSign, algorithm);
 
             //assert
             Assert.Null(signedString);
@@ -38,26 +38,26 @@ namespace XUnitTestTransferWiseCommon
         }
 
         [Theory]
-        [InlineData(false, "", "stringToSign", "SHA1WITHRSA")]
-        [InlineData(false, "signature", "", "SHA1WITHRSA")]
-        [InlineData(false, "signature", "stringToSign", "")]
-        [InlineData(false, null, "stringToSign", "SHA1WITHRSA")]
-        [InlineData(false, "signature", null, "SHA1WITHRSA")]
-        [InlineData(false, "signature", "stringToSign", null)]
-        [InlineData(false, "", "", "SHA1WITHRSA")]
-        [InlineData(false, "signature", "", "")]
-        [InlineData(false, "", "stringToSign", "")]
-        [InlineData(false, "", "", "")]
-        [InlineData(false, null, null, "SHA1WITHRSA")]
-        [InlineData(false, "signature", null, null)]
-        [InlineData(false, null, "stringToSign", null)]
-        [InlineData(false, null, null, null)]
-        public void VerifySignature_EmptyParameter_ReturnsFalse(bool verified, string signature, string stringToSign, string algorithm)
+        [InlineData("", "stringToSign", "SHA1WITHRSA")]
+        [InlineData("signature", "", "SHA1WITHRSA")]
+        [InlineData("signature", "stringToSign", "")]
+        [InlineData(null, "stringToSign", "SHA1WITHRSA")]
+        [InlineData("signature", null, "SHA1WITHRSA")]
+        [InlineData("signature", "stringToSign", null)]
+        [InlineData("", "", "SHA1WITHRSA")]
+        [InlineData("signature", "", "")]
+        [InlineData("", "stringToSign", "")]
+        [InlineData("", "", "")]
+        [InlineData(null, null, "SHA1WITHRSA")]
+        [InlineData("signature", null, null)]
+        [InlineData(null, "stringToSign", null)]
+        [InlineData(null, null, null)]
+        public void VerifySignature_EmptyParameter_ReturnsFalse(string signature, string stringToSign, string algorithm)
         {
             //arrange
 
             //act
-            verified = SignatureHelper.VerifySignature(signature, stringToSign, algorithm);
+            var verified = SignatureHelper.VerifySignature(signature, stringToSign, algorithm);
 
             //assert
             Assert.False(verified);

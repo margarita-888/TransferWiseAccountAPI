@@ -26,10 +26,11 @@ namespace TransferWiseWebhook
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Program> logger)
         {
             if (env.IsDevelopment())
             {
+                _logger.LogInformation("Configuring for Development environment");
                 app.UseDeveloperExceptionPage();
             }
 

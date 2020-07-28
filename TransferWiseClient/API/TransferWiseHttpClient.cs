@@ -41,7 +41,7 @@ namespace TransferWiseClient
                 HttpResponseMessage response = await client.GetAsync("v1/profiles");
                 if (!response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"\nTransferWiseHttpClient::GetTransferwiseAccountBalances. Response StatusCode was {response.StatusCode.ToString()}.");
+                    Console.WriteLine($"\nTransferWiseHttpClient::GetTransferwiseAccountBalances. Response StatusCode was {response.StatusCode}.");
                     return -1;
                 }
 
@@ -60,7 +60,7 @@ namespace TransferWiseClient
 
                 var businessProfileId = profiles.Where(p => p.Type == "business").Select(p => p.Id).FirstOrDefault();
 
-                Console.WriteLine($"TransferWise business profileId is {businessProfileId.ToString()}");
+                Console.WriteLine($"TransferWise business profileId is {businessProfileId}");
                 return businessProfileId;
             }
             catch (HttpRequestException ex)
@@ -82,8 +82,10 @@ namespace TransferWiseClient
 
             Console.WriteLine($"\nSending GET request to https://api.sandbox.transferwise.tech/v1/borderless-accounts?profileId={profileId}.");
 
-            var builder = new UriBuilder(client.BaseAddress + "v1/borderless-accounts?");
-            builder.Port = -1;
+            var builder = new UriBuilder(client.BaseAddress + "v1/borderless-accounts?")
+            {
+                Port = -1
+            };
             var query = HttpUtility.ParseQueryString(builder.Query);
             query["profileId"] = profileId.ToString();
             builder.Query = query.ToString();
@@ -94,7 +96,7 @@ namespace TransferWiseClient
                 HttpResponseMessage response = await client.GetAsync(uri);
                 if (!response.IsSuccessStatusCode)
                 {
-                    Console.WriteLine($"\nTransferWiseHttpClient::GetTransferwiseAccountBalances. Response StatusCode was {response.StatusCode.ToString()}.");
+                    Console.WriteLine($"\nTransferWiseHttpClient::GetTransferwiseAccountBalances. Response StatusCode was {response.StatusCode}.");
                     return null;
                 }
 
@@ -203,8 +205,10 @@ namespace TransferWiseClient
                 {
                     foreach (var currency in currencies)
                     {
-                        var builder = new UriBuilder(client.BaseAddress + $"v3/profiles/{profileId}/borderless-accounts/{borderlessAccountId}/statement.json?");
-                        builder.Port = -1;
+                        var builder = new UriBuilder(client.BaseAddress + $"v3/profiles/{profileId}/borderless-accounts/{borderlessAccountId}/statement.json?")
+                        {
+                            Port = -1
+                        };
                         var query = HttpUtility.ParseQueryString(builder.Query);
                         query["currency"] = currency;
                         query["intervalStart"] = startDateZuluFormat;
@@ -247,7 +251,7 @@ namespace TransferWiseClient
             try
             {
                 HttpResponseMessage response = await client.GetAsync(uri);
-                Console.WriteLine($"\nResponse StatusCode was {response.StatusCode.ToString()}.");
+                Console.WriteLine($"\nResponse StatusCode was {response.StatusCode}.");
 
                 if (response.StatusCode == HttpStatusCode.Forbidden) // 403
                 {

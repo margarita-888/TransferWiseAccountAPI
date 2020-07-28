@@ -18,13 +18,17 @@ namespace WebhookTest
 
             if (answer.ToLower() == "y")
                 SendBalancesCreditWebhook().Wait();
+
+            Console.Read();
         }
 
         private async static Task SendBalancesCreditWebhook()
         {
             DateTime beginProcessingTimeUTC;
-            var client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:64480");
+            var client = new HttpClient
+            {
+                BaseAddress = new Uri("http://localhost:64480")
+            };
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
@@ -45,7 +49,7 @@ namespace WebhookTest
                 Console.WriteLine($"\nRequest url: {uri}");
 
                 var request = new HttpRequestMessage(HttpMethod.Post, uri);
-               request.Headers.Add("X-Signature", signatureHeaderValue);
+                request.Headers.Add("X-Signature", signatureHeaderValue);
 
                 var stringContent = new StringContent(payloadString, Encoding.UTF8, "application/json");
                 request.Content = stringContent;
@@ -57,7 +61,7 @@ namespace WebhookTest
 
                 var totalProcessingTime = (DateTime.UtcNow - beginProcessingTimeUTC).TotalMilliseconds.ToString("###,###,##0");
                 Console.WriteLine($"Total processing time is {totalProcessingTime} milliseconds.");
-                Console.WriteLine($"WebhookTest::SendBalancesCredit. Response status code: {response.StatusCode.ToString()}");
+                Console.WriteLine($"WebhookTest::SendBalancesCredit. Response status code: {response.StatusCode}");
             }
             catch (HttpRequestException ex)
             {
