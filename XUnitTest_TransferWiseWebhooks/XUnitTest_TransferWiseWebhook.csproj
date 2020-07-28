@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TransferWiseWebhook\TransferWiseWebhook.csproj" />
+    <ProjectReference Include="..\TransferWiseWebhooks\TransferWiseWebhooks.csproj" />
   </ItemGroup>
 
 </Project>
