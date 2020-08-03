@@ -10,17 +10,13 @@ namespace TransferWiseCommon
 {
     public class SignatureHelper
     {
-        public static string SignWithPrivateKey(string stringToSign, string algorithm)
+        private const string ALGORITHM = "SHA256WITHRSA";
+
+        public static string SignWithPrivateKey(string stringToSign, bool isWebhook)
         {
             if (string.IsNullOrEmpty(stringToSign))
             {
                 Console.WriteLine($"TransferWiseHttpClient::SignWithPrivateKey. String to sign must be provided. Unable to proceed.");
-                return null;
-            }
-
-            if (string.IsNullOrEmpty(algorithm))
-            {
-                Console.WriteLine($"TransferWiseHttpClient::SignWithPrivateKey. Algorithm must be provided. Unable to proceed.");
                 return null;
             }
 
@@ -32,32 +28,20 @@ namespace TransferWiseCommon
             {
                 AsymmetricCipherKeyPair keyParameters;
 
-                switch (algorithm)
+                string filePath = string.Empty;
+
+                if (isWebhook)
+                    filePath = "/Certificates/private_webhook.pem";
+                else
+                    filePath = "/Certificates/private.pem";
+
+                using (TextReader reader = File.OpenText(AppDomain.CurrentDomain.BaseDirectory + filePath))
                 {
-                    case "SHA256WITHRSA":
-                        using (TextReader reader = File.OpenText(AppDomain.CurrentDomain.BaseDirectory + "/Certificates/private.pem"))
-                        {
-                            keyParameters = (AsymmetricCipherKeyPair)new Org.BouncyCastle.OpenSsl.PemReader(reader).ReadObject();
-                        }
-                        break;
-
-                    case "SHA1WITHRSA":
-                        using (TextReader reader = File.OpenText(AppDomain.CurrentDomain.BaseDirectory + "/Certificates/private1.pem"))
-                        {
-                            keyParameters = (AsymmetricCipherKeyPair)new Org.BouncyCastle.OpenSsl.PemReader(reader).ReadObject();
-                        }
-                        break;
-
-                    default:
-                        using (TextReader reader = File.OpenText(AppDomain.CurrentDomain.BaseDirectory + "/Certificates/private.pem"))
-                        {
-                            keyParameters = (AsymmetricCipherKeyPair)new Org.BouncyCastle.OpenSsl.PemReader(reader).ReadObject();
-                        }
-                        break;
+                    keyParameters = (AsymmetricCipherKeyPair)new Org.BouncyCastle.OpenSsl.PemReader(reader).ReadObject();
                 }
 
                 // Init algorithm
-                ISigner signer = SignerUtilities.GetSigner(algorithm);
+                ISigner signer = SignerUtilities.GetSigner(ALGORITHM);
 
                 // Populate key
                 signer.Init(true, keyParameters.Private);
@@ -88,7 +72,7 @@ namespace TransferWiseCommon
             }
         }
 
-        public static bool VerifySignature(string signature, string json, string algorithm)
+        public static bool VerifySignature(string signature, string json)
         {
             if (string.IsNullOrEmpty(signature))
             {
@@ -101,32 +85,23 @@ namespace TransferWiseCommon
                 return false;
             }
 
-            if (string.IsNullOrEmpty(algorithm))
-            {
-                Console.WriteLine($"TransferWiseHttpClient::SignWithPrivateKey. Algorithm must be provided. Unable to proceed.");
-                return false;
-            }
-
             try
+
             {
                 RsaKeyParameters keyParameters;
-                if (algorithm == "SHA1WITHRSA")
+
+                using (TextReader reader = File.OpenText(AppDomain.CurrentDomain.BaseDirectory + "/Certificates/public_webhook.pem"))
                 {
-                    using (TextReader reader = File.OpenText(AppDomain.CurrentDomain.BaseDirectory + "/Certificates/public1.pem"))
-                    {
-                        keyParameters = (RsaKeyParameters)new Org.BouncyCastle.OpenSsl.PemReader(reader).ReadObject();
-                    }
-
-                    byte[] stringToSignBytes = Encoding.UTF8.GetBytes(json);
-                    byte[] signatureBytes = Convert.FromBase64String(signature);
-
-                    ISigner signer = SignerUtilities.GetSigner(algorithm);
-                    signer.Init(false, keyParameters);
-                    signer.BlockUpdate(stringToSignBytes, 0, stringToSignBytes.Length);
-                    return signer.VerifySignature(signatureBytes);
+                    keyParameters = (RsaKeyParameters)new Org.BouncyCastle.OpenSsl.PemReader(reader).ReadObject();
                 }
-                else
-                    return false;
+
+                byte[] stringToSignBytes = Encoding.UTF8.GetBytes(json);
+                byte[] signatureBytes = Convert.FromBase64String(signature);
+
+                ISigner signer = SignerUtilities.GetSigner(ALGORITHM);
+                signer.Init(false, keyParameters);
+                signer.BlockUpdate(stringToSignBytes, 0, stringToSignBytes.Length);
+                return signer.VerifySignature(signatureBytes);
             }
             catch (Exception exc)
             {

@@ -11,18 +11,20 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using TransferWiseWebhooks;
+using TransferWiseWebhooks.Interfaces;
 
-namespace TransferWiseWebhook
+namespace TransferWiseWebhooks
 {
     public class Startup
     {
-        public ILogger<Program> _logger = null;
-
         // This method gets called by the runtime. Use this method to add services to the container.
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+
+            services.AddScoped<ITransferWiseEventProcessor, TransferWiseEventProcessor>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -30,7 +32,7 @@ namespace TransferWiseWebhook
         {
             if (env.IsDevelopment())
             {
-                _logger.LogInformation("Configuring for Development environment");
+                logger.LogInformation("Configuring for Development environment");
                 app.UseDeveloperExceptionPage();
             }
 

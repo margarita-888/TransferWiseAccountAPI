@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,18 +16,16 @@ namespace TransferWiseClient
     public class TransferWiseHttpClient
 
     {
-        //private const string ACCESS_TOKEN = "baa5a69f-0b8f-4c6f-b96b-21bf3ac86c1c";
-        //private const string ACCESS_TOKEN = "eda86ae4-2717-459a-b740-99a191f5083c"; // Sandbox full access key
-
-        private const string ACCESS_TOKEN = "b02e8fc4-72ca-4c78-bea9-db0a39e503ff";   // Sandbox limited access key
-        private const string ALGORITHM_256 = "SHA256WITHRSA";
+        private readonly string ACCESS_TOKEN;
 
         private readonly HttpClient client = new HttpClient();
 
-        public TransferWiseHttpClient()
+        public TransferWiseHttpClient(IConfigurationRoot configuration)
         {
-            client.BaseAddress = new Uri("https://api.sandbox.transferwise.tech/"); // Sandbox Uri
-                                                                                    // Live BaseAddress is "https://api.transferwise.com/"
+            // Retrieve TransferWise access token from configuration root
+            ACCESS_TOKEN = configuration.GetSection("ACCESS_TOKEN").Value;
+
+            client.BaseAddress = new Uri("https://api.sandbox.transferwise.tech/");
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", ACCESS_TOKEN);
@@ -244,7 +244,7 @@ namespace TransferWiseClient
         {
             if (string.IsNullOrEmpty(uri))
             {
-                Console.WriteLine($"TransferWiseHttpClient::GetStatement. Parameter uri must be provided. Unable to proceed.");
+                Console.WriteLine($"TransferWiseHttpClient::GetStatement. Uri must be provided. Unable to proceed.");
                 return null;
             }
 
@@ -303,7 +303,7 @@ namespace TransferWiseClient
                 Console.WriteLine($"\nOTT received in 403 (Forbidden) response as 'x-2fa-approval' header: {oTT}");
 
                 // Sign OTT with a private key
-                var signatureHeaderValue = SignatureHelper.SignWithPrivateKey(oTT, ALGORITHM_256);
+                var signatureHeaderValue = SignatureHelper.SignWithPrivateKey(oTT, false);
                 Console.WriteLine($"\nX-Signature: {signatureHeaderValue}");
 
                 if (string.IsNullOrEmpty(signatureHeaderValue))

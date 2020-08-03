@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TransferWiseWebhook.DataModels
+namespace TransferWiseWebhooks.DataModels
 {
     public class BalanceDeposit
     {
@@ -17,5 +17,23 @@ namespace TransferWiseWebhook.DataModels
         public double PostTransactionBalanceAmount { get; set; }
         public DateTime OccurredAt { get; set; } // When the balance credit occurred
         public DateTime SentAt { get; set; } // When the event notification was sent from TransferWise system
+        public bool SignatureVerified { get; set; }
+
+        public override string ToString()
+        {
+            return $"\n========================================\n" +
+                $"Balance Deposit received:\n" +
+                $"Balance Account Id:\t\t {BalanceAccountId}\n" +
+                $"Balance Account Type:\t\t {BalanceAccountType}\n" +
+                $"Profile Id:\t\t\t {ProfileId}\n" +
+                $"Event Type:\t\t\t {EventType}\n" +
+                $"Amount:\t\t\t\t {Amount}\n" +
+                $"Currency:\t\t\t {Currency}\n" +
+                $"Post Transaction Balance Amount: {PostTransactionBalanceAmount}\n" +
+                $"OccurredAt:\t\t\t {OccurredAt}\n" +
+                $"Sent At:\t\t\t {SentAt}\n" +
+                $"Signature Verified:\t\t {SignatureVerified}\n" +
+                $"========================================\n";
+        }
     }
 }

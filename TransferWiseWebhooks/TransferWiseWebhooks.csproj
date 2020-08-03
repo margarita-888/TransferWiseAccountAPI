@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <StartupObject>TransferWiseWebhook.Program</StartupObject>
+    <StartupObject>TransferWiseWebhooks.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
