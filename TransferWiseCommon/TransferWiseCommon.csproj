@@ -12,10 +12,10 @@
     <None Update="Certificates\private.pem">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Certificates\private1.pem">
+    <None Update="Certificates\private_webhook.pem">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Certificates\public1.pem">
+    <None Update="Certificates\public_webhook.pem">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

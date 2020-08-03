@@ -8,17 +8,13 @@ namespace XUnitTestTransferWiseCommon
     public class SignatureHelperTest
     {
         [Theory]
-        [InlineData("", "SHA256WITHRSA")]
-        [InlineData(null, "SHA256WITHRSA")]
-        [InlineData("stringToSign", "")]
-        [InlineData("stringToSign", null)]
-        [InlineData("", "")]
-        [InlineData(null, null)]
-        public void SignWithPrivateKey_EmptyParameter_ReturnsNull(string stringToSign, string algorithm)
+        [InlineData("")]
+        [InlineData(null)]
+        public void SignWithPrivateKey_NullOrEmptyParameter_ReturnsNull(string stringToSign)
         {
             //arrange
             //act
-            var signedString = SignatureHelper.SignWithPrivateKey(stringToSign, algorithm);
+            var signedString = SignatureHelper.SignWithPrivateKey(stringToSign, true);
 
             //assert
             Assert.Null(signedString);
@@ -31,62 +27,42 @@ namespace XUnitTestTransferWiseCommon
             var stringToSign = "this is a test";
 
             //act
-            var signedString = SignatureHelper.SignWithPrivateKey(stringToSign, "SHA256WITHRSA");
+            var signedString = SignatureHelper.SignWithPrivateKey(stringToSign, true);
 
             //assert
             Assert.True(signedString.Length > 0);
         }
 
         [Theory]
-        [InlineData("", "stringToSign", "SHA1WITHRSA")]
-        [InlineData("signature", "", "SHA1WITHRSA")]
-        [InlineData("signature", "stringToSign", "")]
-        [InlineData(null, "stringToSign", "SHA1WITHRSA")]
-        [InlineData("signature", null, "SHA1WITHRSA")]
-        [InlineData("signature", "stringToSign", null)]
-        [InlineData("", "", "SHA1WITHRSA")]
-        [InlineData("signature", "", "")]
-        [InlineData("", "stringToSign", "")]
-        [InlineData("", "", "")]
-        [InlineData(null, null, "SHA1WITHRSA")]
-        [InlineData("signature", null, null)]
-        [InlineData(null, "stringToSign", null)]
-        [InlineData(null, null, null)]
-        public void VerifySignature_EmptyParameter_ReturnsFalse(string signature, string stringToSign, string algorithm)
+        [InlineData("", "stringToSign")]
+        [InlineData("signature", "")]
+        [InlineData("signature", "stringToSign")]
+        [InlineData(null, "stringToSign")]
+        [InlineData("signature", null)]
+        [InlineData("", "")]
+        [InlineData(null, null)]
+        public void VerifySignature_NullOrEmptyParameter_ReturnsFalse(string signature, string stringToSign)
         {
             //arrange
 
             //act
-            var verified = SignatureHelper.VerifySignature(signature, stringToSign, algorithm);
+            var verified = SignatureHelper.VerifySignature(signature, stringToSign);
 
             //assert
             Assert.False(verified);
         }
 
         [Fact]
-        public void StringSignedWith_SHA1WITHRSA_WillBeVerified()
+        public void SignedString_WillBeVerified()
         {
             //arrange
-            var signature = SignatureHelper.SignWithPrivateKey("stringToSign", "SHA1WITHRSA");
+            var signature = SignatureHelper.SignWithPrivateKey("stringToSign", true);
 
             //act
-            var verified = SignatureHelper.VerifySignature(signature, "stringToSign", "SHA1WITHRSA");
+            var verified = SignatureHelper.VerifySignature(signature, "stringToSign");
 
             //assert
             Assert.True(verified);
-        }
-
-        [Fact]
-        public void StringSignedWith_SHA256WITHRSA_WillFail()
-        {
-            //arrange
-            var signature = SignatureHelper.SignWithPrivateKey("stringToSign", "SHA256WITHRSA");
-
-            //act
-            var verified = SignatureHelper.VerifySignature(signature, "stringToSign", "SHA256WITHRSA");
-
-            //assert
-            Assert.False(verified);
         }
     }
 }
