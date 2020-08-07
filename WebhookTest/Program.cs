@@ -44,7 +44,7 @@ namespace WebhookTest
             try
             {
                 // Sign json payload with a private key
-                var signatureHeaderValue = SignatureHelper.SignWithPrivateKey(json, true);
+                var signatureHeaderValue = SignatureHelper.SignWithPrivateKey(json);
                 if (string.IsNullOrEmpty(signatureHeaderValue))
                 {
                     Console.WriteLine("WebhookTest::SendBalanceCreditEvent. Error. Signing jsonString with a private key has failed. Unable to continue.");

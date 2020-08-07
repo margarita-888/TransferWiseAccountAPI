@@ -14,7 +14,7 @@ namespace XUnitTestTransferWiseCommon
         {
             //arrange
             //act
-            var signedString = SignatureHelper.SignWithPrivateKey(stringToSign, true);
+            var signedString = SignatureHelper.SignWithPrivateKey(stringToSign);
 
             //assert
             Assert.Null(signedString);
@@ -27,7 +27,7 @@ namespace XUnitTestTransferWiseCommon
             var stringToSign = "this is a test";
 
             //act
-            var signedString = SignatureHelper.SignWithPrivateKey(stringToSign, true);
+            var signedString = SignatureHelper.SignWithPrivateKey(stringToSign);
 
             //assert
             Assert.True(signedString.Length > 0);
@@ -56,7 +56,7 @@ namespace XUnitTestTransferWiseCommon
         public void SignedString_WillBeVerified()
         {
             //arrange
-            var signature = SignatureHelper.SignWithPrivateKey("stringToSign", true);
+            var signature = SignatureHelper.SignWithPrivateKey("stringToSign");
 
             //act
             var verified = SignatureHelper.VerifySignature(signature, "stringToSign");

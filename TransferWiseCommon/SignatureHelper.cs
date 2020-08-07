@@ -12,7 +12,7 @@ namespace TransferWiseCommon
     {
         private const string ALGORITHM = "SHA256WITHRSA";
 
-        public static string SignWithPrivateKey(string stringToSign, bool isWebhook)
+        public static string SignWithPrivateKey(string stringToSign)
         {
             if (string.IsNullOrEmpty(stringToSign))
             {
@@ -28,12 +28,7 @@ namespace TransferWiseCommon
             {
                 AsymmetricCipherKeyPair keyParameters;
 
-                string filePath = string.Empty;
-
-                if (isWebhook)
-                    filePath = "/Certificates/private_webhook.pem";
-                else
-                    filePath = "/Certificates/private.pem";
+                var filePath = "/Certificates/private.pem";
 
                 using (TextReader reader = File.OpenText(AppDomain.CurrentDomain.BaseDirectory + filePath))
                 {
@@ -90,7 +85,7 @@ namespace TransferWiseCommon
             {
                 RsaKeyParameters keyParameters;
 
-                using (TextReader reader = File.OpenText(AppDomain.CurrentDomain.BaseDirectory + "/Certificates/public_webhook.pem"))
+                using (TextReader reader = File.OpenText(AppDomain.CurrentDomain.BaseDirectory + "/Certificates/public.pem"))
                 {
                     keyParameters = (RsaKeyParameters)new Org.BouncyCastle.OpenSsl.PemReader(reader).ReadObject();
                 }

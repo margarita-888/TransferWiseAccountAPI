@@ -13,7 +13,7 @@ using TransferWiseWebhooks.Interfaces;
 
 namespace TransferWiseWebhooks.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/transferwiseevents")]
     [ApiController]
     public class TransferWiseEventsController : ControllerBase
     {

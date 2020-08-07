@@ -126,25 +126,28 @@ namespace TransferWiseClient
 
         #region "TransferWise Account Statement"
 
+        /*
+         The following is an extract from TransferWise API reference https://api-docs.transferwise.com/#payouts-guide-strong-customer-authentication
+
+         When Strong Authentication is required, 403 Forbidden HTTP status code is returned together with a one-time token (OTT) value which needs to be signed and the resulting signature included in the retry of the original request.
+         TransferWise use a digital signature scheme based on public-key cryptography. It involves creating a signature using a private key on the client side and verifying the signature authenticity on the server side using the corresponding public key the client has uploaded.
+
+         To call the endpoints requiring additional authentication
+         - Create a key pair consisting of a public And a private key
+         - Upload the public key to TransferWise
+         - Set up response handling to retry with the signed OTT
+
+         Creating the key pair
+         - Keys can be generated with the OpenSSL toolkit:
+           $ openssl genrsa -out private.pem 2048
+           $ openssl rsa -pubout -in private.pem -out public.pem
+         The following requirements apply
+         - The cryptographic algorithm has to be RSA
+         - The key length has to be at least 2048 bits
+         - The public key should be stored in PEM file format using a .pem file extension
+        */
+
         // GET https://api.sandbox.transferwise.tech/v3/profiles/{profileId}/borderless-accounts/{borderlessAccountId}/statement.json?currency=EUR&intervalStart=2018-03-01T00:00:00.000Z&intervalEnd=2018-03-15T23:59:59.999Z
-        //  Follow TransferWise Strong Authentication algorithm
-        //  When Strong Authentication is required, 403 Forbidden HTTP status code Is returned together with a one-time token (OTT) value which needs to be signed And the resulting signature included in the retry of the original request.
-        //  TransferWise use a digital signature scheme based on public-key cryptography. It involves creating a signature using a private key on the client side And verifying the signature authenticity on the server side using the corresponding public key the client has uploaded.
-        //  To call the endpoints requiring additional authentication
-
-        //  Create a key pair consisting of a public And a private key
-        //  Upload the public key to TransferWise
-        //  Set up response handling to retry with the signed OTT
-        //  Creating the key pair
-
-        //  Keys can be generated with the OpenSSL toolkit:
-        //  $ openssl genrsa -out private.pem 2048
-        //  $ openssl rsa -pubout -in private.pem -out public.pem
-        //  The following requirements apply
-        //  The cryptographic algorithm has to be RSA
-        //  The key length has to be at least 2048 bits
-        //  The public key should be stored in PEM file format using a .pem file extension
-
         public async Task<List<StatementDTO>> GetTransferwiseAccountStatements(int profileId, List<BalanceDTO> balances)
         {
             if (profileId <= 0)
@@ -186,7 +189,7 @@ namespace TransferWiseClient
 
             if (currencies.Count <= 0)
             {
-                Console.WriteLine($"\nTransferWiseHttpClient::GetTransferwiseAccountStatement. Unable to proceed. TransferWise account currencies were NOT found.");
+                Console.WriteLine($"\nTransferWiseHttpClient::GetTransferwiseAccountStatement. TransferWise account currencies were NOT found. Unable to proceed. ");
                 return null;
             }
 
@@ -275,13 +278,13 @@ namespace TransferWiseClient
         {
             if (string.IsNullOrEmpty(uri))
             {
-                Console.WriteLine($"TransferWiseHttpClient::Process403StatementResponse. Unable to proceed. Parameter uri was null or an empty string. ");
+                Console.WriteLine($"TransferWiseHttpClient::Process403StatementResponse. Uri was null or an empty string. Unable to proceed.");
                 return null;
             }
 
             if (response == null)
             {
-                Console.WriteLine($"TransferWiseHttpClient::Process403StatementResponse. Unable to proceed. Parameter response was null.");
+                Console.WriteLine($"TransferWiseHttpClient::Process403StatementResponse. HttpResponseMessage was null. Unable to proceed. ");
                 return null;
             }
 
@@ -303,7 +306,7 @@ namespace TransferWiseClient
                 Console.WriteLine($"\nOTT received in 403 (Forbidden) response as 'x-2fa-approval' header: {oTT}");
 
                 // Sign OTT with a private key
-                var signatureHeaderValue = SignatureHelper.SignWithPrivateKey(oTT, false);
+                var signatureHeaderValue = SignatureHelper.SignWithPrivateKey(oTT);
                 Console.WriteLine($"\nX-Signature: {signatureHeaderValue}");
 
                 if (string.IsNullOrEmpty(signatureHeaderValue))
