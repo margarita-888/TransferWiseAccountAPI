@@ -12,6 +12,6 @@ namespace TransferWiseWebhooks.Interfaces
 {
     public interface ITransferWiseEventProcessor
     {
-        public Task<IActionResult> ProcessBalanceCreditEventAsync(BalanceDepositDTO payload, string signature);
+        Task<IActionResult> ProcessBalanceCreditEventAsync(BalanceDepositDTO payload, string signature);
     }
 }
